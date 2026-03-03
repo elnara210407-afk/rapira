@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rapira TM Exchange</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: var(--tg-theme-bg-color, #f5f5f5);
+            color: var(--tg-theme-text-color, #000);
+        }
+        .card {
+            background-color: var(--tg-theme-secondary-bg-color, #ffffff);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="p-6 bg-emerald-600 text-white rounded-b-[2rem] shadow-xl">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 id="user-name" class="text-sm opacity-90">Загрузка...</h1>
+                <div class="text-3xl font-bold mt-1">0.00 <span class="text-lg font-normal">USDT</span></div>
+            </div>
+            <div class="bg-white/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button class="flex-1 bg-white text-emerald-700 py-3 rounded-2xl font-bold text-sm shadow-sm active:scale-95 transition-transform">Пополнить</button>
+            <button class="flex-1 bg-white/20 py-3 rounded-2xl font-bold text-sm backdrop-blur-md active:scale-95 transition-transform">Вывести</button>
+        </div>
+    </div>
+
+    <div class="p-5">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class=
