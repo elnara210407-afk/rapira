@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rapira TM</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; color: #1e293b; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-active { color: #059669; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="pb-24">
+
+    <div class="p-4 flex justify-between items-center bg-white border-b">
+        <div class="flex gap-2 bg-gray-100 p-1 rounded-lg">
+            <button onclick="setLang('ru')" id="btn-ru" class="px-3 py-1 text-xs font-bold rounded-md bg-white shadow-sm">RU</button>
+            <button onclick="setLang('tm')" id="btn-tm" class="px-3 py-1 text-xs font-bold rounded-md">TM</button>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="user-nick" class="text-sm font-medium">User</span>
+            <div class="w-10 h-10 bg-emerald-100 rounded-full border-2 border-emerald-500 flex items-center justify-center">
+                <svg class="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path></svg>
+            </div>
+        </div>
+    </div>
+
+    <section id="wallet" class="tab-content active p-4">
+        <div class="bg-emerald-600 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p id="t-balance-label" class="text-xs opacity-80 uppercase font-bold tracking-widest">Общий баланс</p>
+                    <div class="flex items-center gap-2 mt-1
