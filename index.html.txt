@@ -3,39 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rapira TM Exchange</title>
+    <title>Rapira TM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background-color: var(--tg-theme-bg-color, #f5f5f5);
-            color: var(--tg-theme-text-color, #000);
-        }
-        .card {
-            background-color: var(--tg-theme-secondary-bg-color, #ffffff);
-        }
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; color: #1e293b; transition: all 0.3s; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-active { color: #059669; }
+        .vip-gold { color: #FFD700 !important; font-weight: 900; text-shadow: 0 0 8px rgba(255, 215, 0, 0.4); border-color: #FFD700 !important; }
+        .btn-linked { color: #059669 !important; font-weight: 900; }
+        .status-verified { color: #059669 !important; border-color: #059669 !important; background-color: #f0fdf4 !important; }
     </style>
 </head>
-<body class="antialiased">
+<body class="pb-24">
 
-    <div class="p-6 bg-emerald-600 text-white rounded-b-[2rem] shadow-xl">
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 id="user-name" class="text-sm opacity-90">Загрузка...</h1>
-                <div class="text-3xl font-bold mt-1">0.00 <span class="text-lg font-normal">USDT</span></div>
+    <div class="p-4 flex justify-between items-center bg-white border-b shadow-sm">
+        <div class="flex gap-1 bg-gray-100 p-1 rounded-xl">
+            <button onclick="setLang('ru')" id="btn-ru" class="px-2 py-1 text-[10px] font-bold rounded-lg bg-white shadow-sm">RU</button>
+            <button onclick="setLang('tm')" id="btn-tm" class="px-2 py-1 text-[10px] font-bold rounded-lg">TM</button>
+            <button onclick="setLang('en')" id="btn-en" class="px-2 py-1 text-[10px] font-bold rounded-lg">EN</button>
+        </div>
+        <button onclick="switchTab('profile')" class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-2xl active:scale-95 transition-all border border-gray-100">
+            <span id="t-user-label" class="text-xs font-bold text-gray-500">Пользователь</span>
+            <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path></svg>
             </div>
-            <div class="bg-white/20 p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        </button>
+    </div>
+
+    <section id="wallet" class="tab-content active p-4">
+        <div class="bg-emerald-600 rounded-[2.5rem] p-7 text-white shadow-2xl relative overflow-hidden">
+            <div class="relative z-10">
+                <p id="t-balance-label" class="text-[10px] opacity-80 uppercase font-black tracking-[0.2em]">Общий баланс</p>
+                <div class="flex items-center gap-3 mt-2">
+                    <h2 id="main-balance" class="text-4xl font-black italic">1,240.50</h2>
+                    <span id="main-currency" class="text-xl font-light opacity-80">TMT</span>
+                    <button onclick="toggleBalance()" class="p-2 bg-white/10 rounded-full backdrop-blur-md">
+                        <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </button>
+                </div>
+                <p id="sub-balance" class="text-sm opacity-70 mt-2 font-medium">≈ 60.51 USDT</p>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-3 mt-10 relative z-10">
+                <button onclick="tg.showAlert('Salmak')" class="bg-white/20 p-4 rounded-3xl text-center backdrop-blur-md active:scale-95">
+                    <span id="t-salmak" class="block text-[10px] font-black uppercase tracking-tighter">Пополнить</span>
+                </button>
+                <button onclick="tg.showAlert('Çykarmak')" class="bg-white/20 p-4 rounded-3xl text-center backdrop-blur-md active:scale-95">
+                    <span id="t-cykarmak" class="block text-[10px] font-black uppercase tracking-tighter">Вывод</span>
+                </button>
+                <button onclick="switchTab('exchange')" class="bg-white text-emerald-700 p-4 rounded-3xl text-center shadow-xl font-black active:scale-95">
+                    <span id="t-aly-caly" class="block text-[10px] uppercase tracking-tighter">Обменять</span>
+                </button>
             </div>
         </div>
-        <div class="flex gap-3 mt-6">
-            <button class="flex-1 bg-white text-emerald-700 py-3 rounded-2xl font-bold text-sm shadow-sm active:scale-95 transition-transform">Пополнить</button>
-            <button class="flex-1 bg-white/20 py-3 rounded-2xl font-bold text-sm backdrop-blur-md active:scale-95 transition-transform">Вывести</button>
+
+        <h3 id="t-walyutalar" class="text-xl font-black mt-10 mb-5 ml-2">Валюты</h3>
+        <div class="space-y-4">
+            <div class="bg-white p-5 rounded-[2rem] flex justify-between items-center shadow-sm border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl italic font-black">₮</div>
+                    <div><div class="font-black text-gray-800">Tether USDT</div><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Digital Dollar</div></div>
+                </div>
+                <div class="text-right font-black text-xl">60.51</div>
+            </div>
+            <div class="bg-white p-5 rounded-[2rem] flex justify-between items-center shadow-sm border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg">M</div>
+                    <div><div class="font-black text-gray-800">TMT (Manat)</div><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Local Currency</div></div>
+                </div>
+                <div class="text-right font-black text-xl">1,240.50</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="exchange" class="tab-content p-4">
+        <h2 id="t-tiz-alys" class="text-3xl font-black mb-8 ml-2 mt-4 italic uppercase">Обменять</h2>
+        <div id="swap-container" class="flex flex-col gap-2">
+            <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <label id="t-bery-n" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Я даю</label>
+                    <button onclick="setFullAmount()" class="text-[10px] font-black text-white bg-emerald-600 px-2 py-0.5 rounded-md uppercase tracking-tighter">MAX</button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3 font-black text-2xl">
+                        <span id="give-icon" class="text-emerald-500 italic">₮</span>
+                        <span id="give-name">USDT</span>
+                    </div>
+                    <input id="input-give" oninput="calculateExchange()" type="number" placeholder="0.00" class="w-1/2 text-right text-3xl font-black outline-none bg-transparent">
+                </div>
+            </div>
+            <div class="flex justify-center -my-6 relative z-10">
+                <button onclick="reverseExchange()" class="bg-white text-emerald-600 p-4 rounded-3xl shadow-xl border-4 border-gray-50 active:rotate-180 transition-all duration-500">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                </button>
+            </div>
+            <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm mt-2">
+                <label id="t-alyan" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Я получаю</label>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="flex items-center gap-3 font-black text-2xl">
+                        <span id="get-icon" class="text-blue-600 italic">M</span>
+                        <span id="get-name">TMT</span>
+                    </div>
+                    <input id="input-get" readonly placeholder="0.00" class="w-1/2 text-right text-3xl font-black outline-none bg-transparent text-emerald-600">
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 bg-gray-50 p-6 rounded-[2rem] space-y-4 border border-gray-100">
+            <div class="flex justify-between text-xs font-bold uppercase tracking-tighter">
+                <span id="t-teklip" class="text-gray-400">Ставка</span>
+                <span id="rate-display" class="text-gray-800 italic">1 USDT ≈ 20.50 TMT</span>
+            </div>
+            <div class="flex justify-between text-xs font-bold uppercase tracking-tighter">
+                <span id="t-kurs" class="text-gray-400">Комиссия</span>
+                <span class="text-emerald-600">0.5%</span>
+            </div>
+        </div>
+        <button id="t-calysmak" onclick="processExchange()" class="w-full bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl mt-8 shadow-2xl active:scale-95 transition-all uppercase italic tracking-widest">Обменять</button>
+    </section>
+
+    <section id="profile" class="tab-content p-4">
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 mb-6">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-gray-200 rounded-3xl flex items-center justify-center text-gray-500 text-2xl font-black shadow-inner">A</div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <button onclick="editNickname()" class="font-black text-lg flex items-center gap-1 uppercase italic">
+                            <span id="display-nickname">USER_NAME</span>
+                            <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path></svg>
+                        </button>
+                        <button onclick="showStatusMenu()" id="p-status" class="bg-gray-100 text-gray-500 text-[8px] px-3 py-1 rounded-md font-black uppercase border border-gray-200">Standard</button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mt-1 italic tracking-widest">ID: <span id="user-id">000000</span></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 pt-4 border-t border-gray-50">
+                <button onclick="showKYC()" id="kyc-card-ui" class="p-4 bg-red-50 rounded-2xl border border-red-100 text-left flex justify-between items-center">
+                    <div>
+                        <p id="t-kyc-label" class="text-[8px] text-red-400 font-black uppercase mb-1 tracking-widest">Верификация</p>
+                        <p id="t-kyc-status" class="text-[10px] font-bold text-red-600">Не верифицирован</p>
+                    </div>
+                    <span class="text-red-300 font-black">➔</span>
+                </button>
+                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span id="t-maker-label" class="text-[10px] font-black text-blue-400 uppercase tracking-tighter">Мейкер (Maker)</span>
+                        <span class="text-[10px] font-black text-blue-600 uppercase italic">0.5%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span id="t-taker-label" class="text-[10px] font-black text-blue-400 uppercase tracking-tighter">Тейкер (Taker)</span>
+                        <span class="text-[10px] font-black text-blue-600 uppercase italic">0.7%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 id="t-sec-title" class="text-xs font-black text-gray-400 uppercase ml-4 mb-3 tracking-widest">Безопасность</h3>
+        <div class="bg-white rounded-[2rem] overflow-hidden border border-gray-100 mb-6 shadow-sm">
+            <button onclick="linkField('phone')" class="w-full p-5 flex justify-between items-center border-b border-gray-50">
+                <span id="t-phone-label" class="text-sm font-bold italic">Телефон</span>
+                <span id="status-phone" class="text-[10px] text-emerald-600 font-black uppercase tracking-tighter italic">Привязать +</span>
+            </button>
+            <button onclick="linkField('email')" class="w-full p-5 flex justify-between items-center border-b border-gray-50">
+                <span id="t-email-label" class="text-sm font-bold italic">Почта</span>
+                <span id="status-email" class="text-[10px] text-gray-400 font-black uppercase tracking-tighter italic">Link</span>
+            </button>
+            <button onclick="tg.showAlert('Authenticator / 2FA')" class="w-full p-5 flex justify-between items-center border-b border-gray-50">
+                <span class="text-sm font-bold italic">Authenticator (2FA)</span>
+                <span class="text-[10px] text-gray-300 font-black uppercase tracking-widest italic">OFF</span>
+            </button>
+            <button onclick="tg.showAlert('Face ID / Passcode')" class="w-full p-5 flex justify-between items-center">
+                <span id="t-face-label" class="text-sm font-bold italic">Face ID / Код</span>
+                <div class="w-8 h-4 bg-gray-200 rounded-full relative"><div class="absolute left-1 top-1 w-2 h-2 bg-white rounded-full"></div></div>
+            </button>
+        </div>
+
+        <h3 id="t-settings-title" class="text-xs font-black text-gray-400 uppercase ml-4 mb-3 tracking-widest">Настройки</h3>
+        <div class="bg-white rounded-[2rem] overflow-hidden border border-gray-100 mb-6 shadow-sm">
+            <button onclick="tg.showAlert(currentLang === 'tm' ? 'Işlenilýär...' : 'В обработке...')" class="w-full p-5 flex justify-between items-center border-b border-gray-50">
+                <span id="t-cities-label" class="text-sm font-bold italic">Города для наличных</span>
+                <span class="text-[10px] text-emerald-600 font-black italic uppercase tracking-tighter">Açmak ➔</span>
+            </button>
+            <button onclick="window.open('https://t.me/YOUR_SUPPORT')" class="w-full p-5 flex justify-between items-center">
+                <span id="t-support-label" class="text-sm font-bold italic text-emerald-600">Поддержка</span>
+                <span class="text-emerald-600 font-black">➔</span>
+            </button>
+        </div>
+
+        <button onclick="deleteAccount()" id="t-delete-btn" class="w-full py-6 text-red-500 font-black text-[10px] uppercase tracking-[0.3em] active:bg-red-50">Удалить аккаунт</button>
+    </section>
+
+    <div id="kyc-modal" class="fixed inset-0 bg-black/70 z-[100] hidden items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full rounded-[3rem] p-8">
+            <h2 id="t-kyc-header" class="text-2xl font-black mb-6 italic uppercase tracking-tighter text-gray-800">KYC Верификация</h2>
+            <div class="space-y-4 mb-8">
+                <div class="flex justify-between text-[10px] font-black border-b pb-3 text-gray-400 uppercase tracking-tighter">
+                    <span id="t-kyc-nali-label">Наличные (манаты)</span>
+                    <span id="kyc-cash" class="text-red-500 font-black italic">0 TMT</span>
+                </div>
+                <div class="flex justify-between text-[10px] font-black border-b pb-3 text-gray-400 uppercase tracking-tighter">
+                    <span>Crypto USDT</span>
+                    <span id="kyc-crypto" class="text-red-500 font-black italic uppercase">0 USDT</span>
+                </div>
+                <div class="flex justify-between text-[10px] font-black border-b pb-3 text-gray-400 uppercase tracking-tighter">
+                    <span>P2P Market</span>
+                    <span id="kyc-p2p" class="text-red-500 font-black italic uppercase tracking-tighter italic">
+                        <span id="t-kyc-locked">Заблокировано</span>
+                    </span>
+                </div>
+            </div>
+            <button id="t-kyc-start" onclick="simulateVerification()" class="w-full bg-emerald-600 text-white py-5 rounded-[2rem] font-black uppercase shadow-lg tracking-widest italic">Начать верификацию</button>
+            <button id="t-kyc-back" onclick="closeKYC()" class="w-full py-4 text-gray-400 font-bold uppercase text-[10px] mt-2 tracking-widest italic italic">Назад</button>
         </div>
     </div>
 
-    <div class="p-5">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class=
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 px-8 py-5 flex justify-between items-center z-50 rounded-t-[2.5rem]">
+        <button onclick="switchTab('wallet')" class="nav-btn flex flex-col items-center gap-1 nav-active" id="nav-wallet">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/></svg>
+            <span id="t-nav-gapjyk" class="text-[9px] font-black uppercase tracking-tighter italic italic">Кошелек</span>
+        </button>
+        <button onclick="switchTab('exchange')" class="nav-btn flex flex-col items-center gap-1 text-gray-400" id="nav-exchange">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4"/></svg>
+            <span id="t-nav-alys" class="text-[9px] font-black uppercase tracking-tighter italic italic tracking-widest italic">Обмен</span>
+        </button>
+        <button onclick="tg.showAlert('P2P Market coming soon')" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span class="text-[9px] font-black uppercase tracking-tighter italic tracking-widest italic italic">P2P</span>
+        </button>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let isBalanceVisible = true;
+        let currentLang = 'ru';
+        let isReversed = false;
+        const rate = 20.50;
+
+        if(!localStorage.getItem('azat_id')) localStorage.setItem('azat_id', Math.floor(100000 + Math.random() * 900000));
+        document.getElementById('user-id').innerText = localStorage.getItem('azat_id');
+
+        const dict = {
+            ru: {
+                balanceLabel: "Общий баланс", salmak: "Пополнить", cykarmak: "Вывод", alyCaly: "Обменять",
+                walyutalar: "Валюты", navGapjyk: "Кошелек", navAlys: "Обмен", tizAlys: "Обменять",
+                beryN: "Я даю", alyan: "Я получаю", teklip: "Ставка", kurs: "Комиссия", 
+                calysmak: "Обменять", userLabel: "Пользователь", kycLabel: "Верификация", 
+                kycStatus: "Не верифицирован", secTitle: "Безопасность", phoneLabel: "Телефон",
+                emailLabel: "Почта", faceLabel: "Face ID / Код", kycStart: "Начать верификацию",
+                deleteBtn: "Удалить аккаунт", supportLabel: "Поддержка", verified: "Верифицирован", 
+                linked: "Baglanan", citiesLabel: "Города для наличных", settingsTitle: "Настройки",
+                makerLabel: "Мейкер (Maker)", takerLabel: "Тейкер (Taker)", kycHeader: "KYC Верификация",
+                kycNaliLabel: "Наличные (манаты)", kycLocked: "Заблокировано", kycBack: "Назад"
+            },
+            tm: {
+                balanceLabel: "Umumy balans", salmak: "Salmak", cykarmak: "Çykarmak", alyCaly: "Alyş-çalyş",
+                walyutalar: "Walyutalar", navGapjyk: "Gapjyk", navAlys: "Alyş-çalyş", tizAlys: "Alyş-çalyş",
+                beryN: "Men berýän", alyan: "Men alýan", teklip: "Teklip", kurs: "Komissiýa", 
+                calysmak: "Çalyşmak", userLabel: "Ulanyjy", kycLabel: "Tassyklama",
+                kycStatus: "Tassyklanmadyk", secTitle: "Howpsuzlyk", phoneLabel: "Telefon",
+                emailLabel: "Poçta", faceLabel: "Face ID / Kod", kycStart: "Tassyklamagy başlaň",
+                deleteBtn: "Hasaby pozmak", supportLabel: "Goldaw", verified: "Tassyklanan", 
+                linked: "Baglanan", citiesLabel: "Şäherler naliçka üçin", settingsTitle: "Sazlamalar",
+                makerLabel: "Meyker (Maker)", takerLabel: "Teyker (Taker)", kycHeader: "KYC Tassyklama",
+                kycNaliLabel: "Naliçka (manat)", kycLocked: "Bloklanan", kycBack: "Yza"
+            },
+            en: {
+                balanceLabel: "Total Balance", salmak: "Deposit", cykarmak: "Withdraw", alyCaly: "Exchange",
+                walyutalar: "Currencies", navGapjyk: "Wallet", navAlys: "Exchange", tizAlys: "Quick Swap",
+                beryN: "I give", alyan: "I receive", teklip: "Rate", kurs: "Commission", 
+                calysmak: "Swap Now", userLabel: "User", kycLabel: "Verification",
+                kycStatus: "Unverified", secTitle: "Security", phoneLabel: "Phone",
+                emailLabel: "Email", faceLabel: "Face ID / Code", kycStart: "Start Verification",
+                deleteBtn: "Delete Account", supportLabel: "Support", verified: "Verified", 
+                linked: "Linked", citiesLabel: "Cities for cash", settingsTitle: "Settings",
+                makerLabel: "Maker (Maker)", takerLabel: "Taker (Taker)", kycHeader: "KYC Verification",
+                kycNaliLabel: "Cash (manat)", kycLocked: "Locked", kycBack: "Back"
+            }
+        };
+
+        function setLang(lang) {
+            currentLang = lang;
+            ['ru', 'tm', 'en'].forEach(l => {
+                document.getElementById('btn-'+l).classList.toggle('bg-white', lang === l);
+            });
+            for (let key in dict[lang]) {
+                const el = document.getElementById('t-' + key.replace(/([A-Z])/g, "-$1").toLowerCase());
+                if (el) el.innerText = dict[lang][key];
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('nav-active', 'text-gray-400'));
+            const navEl = document.getElementById('nav-' + tabId);
+            if(navEl) navEl.classList.add('nav-active');
+        }
+
+        function reverseExchange() {
+            isReversed = !isReversed;
+            const gn = document.getElementById('give-name'), nn = document.getElementById('get-name');
+            const gi = document.getElementById('give-icon'), ni = document.getElementById('get-icon');
+            if(isReversed) {
+                gn.innerText="TMT"; nn.innerText="USDT"; gi.innerText="M"; gi.className="text-blue-600 italic"; ni.innerText="₮"; ni.className="text-emerald-500 italic";
+            } else {
+                gn.innerText="USDT"; nn.innerText="TMT"; gi.innerText="₮"; gi.className="text-emerald-500 italic"; ni.innerText="M"; ni.className="text-blue-600 italic";
+            }
+            document.getElementById('input-give').value = ""; document.getElementById('input-get').value = "";
+        }
+
+        function calculateExchange() {
+            const input = document.getElementById('input-give').value;
+            const output = document.getElementById('input-get');
+            if(!isReversed) output.value = (input * rate * 0.995).toFixed(2);
+            else output.value = (input / rate * 0.995).toFixed(2);
+        }
+
+        function simulateVerification() {
+            tg.showConfirm(currentLang === 'tm' ? 'Amaly başlamalymy?' : 'Начать процесс?', (ok) => {
+                if(ok) {
+                    const st = document.getElementById('t-kyc-status');
+                    st.innerText = dict[currentLang].verified;
+                    document.getElementById('kyc-card-ui').classList.add('status-verified');
+                    document.getElementById('kyc-cash').innerText = "∞ TMT";
+                    document.getElementById('kyc-crypto').innerText = "∞ USDT";
+                    document.getElementById('kyc-p2p').innerText = "UNLOCKED";
+                    document.getElementById('kyc-p2p').className = "text-emerald-500 font-black";
+                    tg.showAlert("Status: Verified!"); closeKYC();
+                }
+            });
+        }
+
+        function linkField(type) {
+            const val = prompt(`Enter ${type}:`);
+            if(val) {
+                const el = document.getElementById(`status-${type}`);
+                el.innerText = dict[currentLang].linked;
+                el.classList.add('btn-linked');
+            }
+        }
+
+        function showStatusMenu() {
+            tg.showAlert(currentLang === 'tm' ? 'VIP şertleri ýakynda bolar...' : 'Условия VIP будут скоро...');
+        }
+
+        function editNickname() {
+            const n = prompt("Enter Nickname (ENG):");
+            if(n && /^[a-zA-Z0-9_]+$/.test(n)) document.getElementById('display-nickname').innerText = n.toUpperCase();
+            else if(n) tg.showAlert("English only!");
+        }
+
+        function toggleBalance() {
+            isBalanceVisible = !isBalanceVisible;
+            document.getElementById('main-balance').innerText = isBalanceVisible ? "1,240.50" : "****";
+            document.getElementById('sub-balance').innerText = isBalanceVisible ? "≈ 60.51 USDT" : "≈ **** USDT";
+        }
+
+        function deleteAccount() {
+            tg.showConfirm("Delete?", (ok) => { if(ok) tg.showAlert("Processing..."); });
+        }
+
+        function showKYC() { document.getElementById('kyc-modal').style.display = 'flex'; }
+        function closeKYC() { document.getElementById('kyc-modal').style.display = 'none'; }
+        function setFullAmount() { document.getElementById('input-give').value = isReversed ? 1240.50 : 60.51; calculateExchange(); }
+        function processExchange() { if(document.getElementById('input-give').value > 0) tg.showConfirm("Confirm?", (ok) => { if(ok) tg.showAlert("Success!"); }); }
+    </script>
+</body>
+</html>
